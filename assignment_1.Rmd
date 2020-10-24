@@ -1,17 +1,15 @@
 ---
 title: "Assignment 1"
-author: "Ted Ladas"
+author: "Ted Ladas -s2124289"
 date: "10/20/2020"
 output: html_document
 ---
-
-
-## Exercise 2
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 require(MASS)
 ```
 
+## Exercise 2a
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 set.seed(1903)
 rows = 500
@@ -45,7 +43,28 @@ legend(7.5,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
        bty="n")
 ```
 
+## Exercise 2b
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+fit = lm(df_1$Y2 ~ Y1, data = df_1)
+# checking for correlation between Y2 and residuals
+plot(fit$fitted.values, residuals(fit), xlab = "Fitted values", ylab = "Residuals")
+# checking for irregularities in the distribution of residuals
+qqnorm(rstandard(fit), xlim = c(-3, 3), ylim = c(-3, 3))
+qqline(rstandard(fit), col = 2)
+summary(fit)
+```
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+df_2 = df_1
+predicted_slm = predict(fit, newdata = df_1) + rnorm(nrow(df_1), 0, sigma(fit))
+df_2$Y2 = ifelse(is.na(df_2$Y2), predicted_slm, df_2$Y2)
 
+plot(density(df_2$Y2), col="darkblue", xlab="Y2", main="Stochastic Linear Regression")
+lines(density(df$Y2), col = "red")
+legend(8,0.15,legend = c("slm Y2", "full Y2"), 
+       col = c("darkblue", "red"),
+       lty=c(1,1),
+       bty="n")
+```
 
 
 
