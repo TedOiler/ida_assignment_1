@@ -1,19 +1,18 @@
 ---
-title: "assignment_1"
+title: "Assignment 1"
 author: "Ted Ladas"
 date: "10/20/2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+## Exercise 2
 
-```{r cars}
-summary(cars)
-```
+```{r setup, include=TRUE}
+z_1 <- rnorm(500)
+z_2 <- rnorm(500)
+z_3 <- rnorm(500)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+y_1 = 1 + z_1
+y_2 = 5 + 2*z_1 + z_2
 
+```
