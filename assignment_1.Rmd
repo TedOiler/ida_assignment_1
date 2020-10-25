@@ -7,15 +7,9 @@ output:
   html_document: default
 ---
 
-# Libraries
+Github repo: https://github.com/TedOiler/ida_assignment_1
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
-require(MASS)
-require(tinytex)
-library(tinytex)
-```
-
-## Exercise 1
+# Exercise 1
 -(a) --> (ii)
 We are told that the missing mechanism is MCAR. That means that the missingness
 doesn't depend on any other variable. 
@@ -29,7 +23,7 @@ From the information given, the only thing that we can infer is that
 the probability of ALQ not missing given that gender is Male is 0.9. 
 We cannot conclude about the probability on all the other strata of gender. 
 
-## Exercise 2
+# Exercise 2
 
 Largest possible subsample: 90 rows. 
 That will happen when each of the 10 variables, are missing exactly the same rows (let suppose,  without loss of generality rows 1:10)
@@ -38,11 +32,11 @@ Smallest possible subsample: 0 rows.
 In the extreme case where there is no overlap on any rows between the 10 variables, the dataset produced where each row has information on all variables will be of 0 length. 
 Suppose X1 is missing 1:10, X2 is missing 11:21, ... , X10: 90:100
 
-## Exercise 3
+# Exercise 3
 
-# Setup of full dataframe
+## Setup of full dataframe
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 set.seed(1903)
 rows = 500
 z1 = rnorm(rows)
@@ -54,11 +48,11 @@ y2 = 5 + 2*z1 + z2
 df = data.frame("Y1"=y1, "Y2"=y2)
 ```
 
-# -- 3.a
+## -3.a
 
 Comments: The mechanism of missingness is MAR because the missingness of the variable Y2 depends on the Y1 variable with a=2 and b=0. On the diagram we observe the shift in position of the observed data versus the full dataset. 
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 df_1 = df
 a=2;b=0
 y2_rule = a*(y1-1) + b*(y2-5) + z3 < 0
@@ -83,11 +77,11 @@ legend(7.5,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
 
 
 
-# -- 3.b
+## -3.b
 
 Comments about checks of assumption: First I am checking for any correlation between the residuals of the regression and the Y2 variable, and whether the residuals actually are distributed identically and independently distributed, with constant variance.I see that this is the case because on the first diagram there are no obvious (at least to the eye) pattern and on the second diagram I see that the they all fall onto the line. I suspected that this will be the case because this is a generated dataset from Normal distributions, meaning that the assumptions of OLS will hold perfectly.
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 fit = lm(df_1$Y2 ~ Y1, data = df_1)
 # checking for correlation between Y2 and residuals
 plot(fit$fitted.values, residuals(fit), xlab = "Fitted values", ylab = "Residuals")
@@ -98,7 +92,7 @@ summary(fit)
 ```
 Comments about actual results: As expected, the Stochastic Linear Regression imputation, does a very good job on imputing the missing values, since we saw above that all the assumptions hold. 
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 df_2 = df_1
 predicted_slm = predict(fit, newdata = df_1) + rnorm(nrow(df_1), 0, sigma(fit))
 df_2$Y2 = ifelse(is.na(df_2$Y2), predicted_slm, df_2$Y2)
@@ -111,11 +105,11 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
        bty="n")
 ```
 
-# -- 3.c
+## -3.c
 
 Comments: The mechanism of missingness is MNAR because the missingness of the variable Y2 depends on the Y2 itselft with a=0 and b=2. On the diagram we observe the shift in position of the observed data versus the full dataset, as well as the change in standard error caused by the specific mechanism. 
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 df_3 = df
 a=0;b=2
 y2_rule = a*(y1-1) + b*(y2-5) + z3 < 0
@@ -138,11 +132,11 @@ legend(9,0.25,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
        bty="n")
 ```
 
-# -- 3.d
+## -3.d
 
 Comments about checks of assumption: As in 3.b the assumptions still hold for the most part, since those check are dependent on the original distribution of the data which is unchanged. 
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 fit = lm(df_1$Y2 ~ df_3$Y1, data = df_1)
 # checking for correlation between Y2 and residuals
 plot(fit$fitted.values, residuals(fit), xlab = "Fitted values", ylab = "Residuals")
@@ -154,7 +148,7 @@ summary(fit)
 
 Comments about actual results: As with the case of the MAR, the stochastic linear regression does a good job at imputing the values since the results are unbiased. However, we can observe from the diagram the fall in efficiency, since our standard deviation is skewed. 
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 df_4 = df_1
 predicted_slm = predict(fit, newdata = df_1) + rnorm(nrow(df_1), 0, sigma(fit))
 df_4$Y2 = ifelse(is.na(df_4$Y2), predicted_slm, df_4$Y2)
@@ -167,11 +161,11 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
        bty="n")
 ```
 
-## Exercise 4
+# Exercise 4
 
-# -- 4.a
+## -4.a
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 load(file = "databp.RData")
 N = length(databp$recovtime)
 mean_fc = mean(databp$recovtime, na.rm=TRUE)
@@ -185,9 +179,9 @@ print(paste0("standard error: " , se_fc))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_fc))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_fc))
 ```
-# -- 4.b
+## -4.b
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 recovtime_mi = ifelse(is.na(databp$recovtime), mean_fc, databp$recovtime)
 
 mean_mi = mean(recovtime_mi)
@@ -201,9 +195,9 @@ print(paste0("standard error: " , se_mi))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_mi))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_mi))
 ```
-#-- 4.c
+# -4.c
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 fit = lm(databp$recovtime ~ databp$logdose + databp$bloodp, data = databp)
 
 # checking for correlation between Y2 and residuals
@@ -228,7 +222,9 @@ print(paste0("standard error: " , se_ri))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_ri))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_ri))
 ```
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+## -4.d
+
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 
 predicted_sri <- predict(fit, newdata = databp) + rnorm(nrow(databp), 0, sigma(fit))
 recovtime_sri = ifelse(is.na(databp$recovtime), predicted_sri, databp$recovtime)
@@ -246,12 +242,14 @@ print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_sri))
 
 # very skewed results, need to investigate
 ```
-# --4.e
+## -4.e
 
 Comments: As we can see, the correlation between logdose, and bloodp is above 50%! 
-This means that on our regression model we have multicolinearity issues. This violates the assumptions of OLS 
+This means that on our regression model we have multicollinearity issues. This violates the assumptions of OLS. The OLS still produces some results since we do not have perfect collinearity but the results are not that statistically significant as in for example Exercise 3.
+To overcome this problem we could try to do our regression with either of the variables, but this might oversimplify our model. 
+At this point something worth mentioning is the fact that the correlation between recovery time and bloop pressure changes sign, which is alarming. This is due to the above mentioned problems of the regression assumptions. 
 
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 predicted_hd = predict(fit, newdata=databp)
 ind_hd = which(is.na(databp$recovtime) == FALSE)
 
@@ -278,12 +276,25 @@ corr_recovtime_boodp_hd = cor(recovtime_hd, databp$bloodp)
 corr_logdose_boodp_hd = cor(databp$logdose, databp$bloodp)
 
 print("Predictive Mean Matching - Hot Deck Imputation")
-print(paste0("logdose $ bloodp correlation: ", corr_logdose_boodp_hd))
+print(paste0("logdose & bloodp correlation: ", corr_logdose_boodp_hd))
 print(paste0("mean: ", mean_hd))
 print(paste0("standard error: " , se_hd))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_hd))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_hd))
 ```
+
+
+## -4.f
+
+Comments: Hot deck imputation has the advantage of using a simple linear regression model without the stochasticity and the drawing conclusions by imputing real (observed) values on the missing. Since we have seen on question 4.e that the normal qq plot suggests that our residuals are not iid, it would be wrong to use stochastic linear regression method of imputation. However one shortcoming that we see, is that the correlation of our dependent with our independent variables are 'overestimated' compared to the complete case analysis. 
+
+
+
+
+
+
+
+
 
 
 
