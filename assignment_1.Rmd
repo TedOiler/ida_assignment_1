@@ -158,10 +158,39 @@ print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_mi))
 ```
 #-- 4.c
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+fit = lm(databp$recovtime ~ databp$logdose + databp$bloodp, data = databp)
+# summary(fit)
+# Rsqr seems very bad, need to explore more
+predicted_ri = predict(fit, newdata=databp)
+recovtime_ri = ifelse(is.na(databp$recovtime), predicted_ri, databp$recovtime)
 
+mean_ri = mean(recovtime_ri, na.rm=TRUE)
+sd_ri = sd(recovtime_ri, na.rm=TRUE)
+corr_recovtime_logdose_ri = cor(recovtime_ri, databp$logdose)
+corr_recovtime_boodp_ri = cor(recovtime_ri, databp$bloodp)
+
+print(paste0("mean: ", mean_ri))
+print(paste0("standard dev: " , sd_ri))
+print(paste0("recovtime & dose: " , corr_recovtime_logdose_ri))
+print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_ri))
 ```
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 
+predicted_sri <- predict(fit, newdata = databp) + rnorm(nrow(databp), 0, sigma(fit))
+recovtime_sri = ifelse(is.na(databp$recovtime), predicted_sri, databp$recovtime)
 
+mean_sri = mean(recovtime_sri, na.rm=TRUE)
+sd_sri = sd(recovtime_sri, na.rm=TRUE)
+corr_recovtime_logdose_sri = cor(recovtime_sri, databp$logdose)
+corr_recovtime_boodp_sri = cor(recovtime_sri, databp$bloodp)
+
+print(paste0("mean: ", mean_sri))
+print(paste0("standard dev: " , sd_sri))
+print(paste0("recovtime & dose: " , corr_recovtime_logdose_sri))
+print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_sri))
+
+# very skewed results, need to investigate
+```
 
 
 
