@@ -3,20 +3,40 @@ title: "Assignment 1"
 author: "Ted Ladas -s2124289"
 date: "10/20/2020"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 # Libraries
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 require(MASS)
+require(tinytex)
+library(tinytex)
 ```
 
 ## Exercise 1
+-(a) --> (ii)
+We are told that the missing mechanism is MCAR. That means that the missingness
+doesn't depend on any other variable. 
 
+-(b) --> (ii) 
+This is because if the mechanism is MAR, then the probability of ALQ being missing 
+depends on some variable that has fully observed values. I this case it's the gender as per the exercise definition
+
+-(c) --> (iii)
+From the information given, the only thing that we can infer is that
+the probability of ALQ not missing given that gender is Male is 0.9. 
+We cannot conclude about the probability on all the other strata of gender. 
 
 ## Exercise 2
+
+Largest possible subsample: 90 rows. 
+That will happen when each of the 10 variables, are missing exactly the same rows (let suppose,  without loss of generality rows 1:10)
+
+Smallest possible subsample: 0 rows. 
+In the extreme case where there is no overlap on any rows between the 10 variables, the dataset produced where each row has information on all variables will be of 0 length. 
+Suppose X1 is missing 1:10, X2 is missing 11:21, ... , X10: 90:100
 
 ## Exercise 3
 
@@ -35,6 +55,8 @@ df = data.frame("Y1"=y1, "Y2"=y2)
 ```
 
 # -- 3.a
+
+Comments: The mechanism of missingness is MAR because the missingness of the variable Y2 depends on the Y1 variable with a=2 and b=0. On the diagram we observe the shift in position of the observed data versus the full dataset. 
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_1 = df
@@ -59,7 +81,11 @@ legend(7.5,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
        bty="n")
 ```
 
+
+
 # -- 3.b
+
+Comments about checks of assumption: First I am checking for any correlation between the residuals of the regression and the Y2 variable, and whether the residuals actually are distributed identically and independently distributed, with constant variance.I see that this is the case because on the first diagram there are no obvious (at least to the eye) pattern and on the second diagram I see that the they all fall onto the line. I suspected that this will be the case because this is a generated dataset from Normal distributions, meaning that the assumptions of OLS will hold perfectly.
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 fit = lm(df_1$Y2 ~ Y1, data = df_1)
@@ -70,6 +96,7 @@ qqnorm(rstandard(fit), xlim = c(-3, 3), ylim = c(-3, 3))
 qqline(rstandard(fit), col = 2)
 summary(fit)
 ```
+Comments about actual results: As expected, the Stochastic Linear Regression imputation, does a very good job on imputing the missing values, since we saw above that all the assumptions hold. 
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_2 = df_1
@@ -84,7 +111,9 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
        bty="n")
 ```
 
-#-- 3.c
+# -- 3.c
+
+Comments: The mechanism of missingness is MNAR because the missingness of the variable Y2 depends on the Y2 itselft with a=0 and b=2. On the diagram we observe the shift in position of the observed data versus the full dataset, as well as the change in standard error caused by the specific mechanism. 
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_3 = df
@@ -109,7 +138,9 @@ legend(9,0.25,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
        bty="n")
 ```
 
-#-- 3.d
+# -- 3.d
+
+Comments about checks of assumption: As in 3.b the assumptions still hold for the most part, since those check are dependent on the original distribution of the data which is unchanged. 
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 fit = lm(df_1$Y2 ~ df_3$Y1, data = df_1)
@@ -120,6 +151,8 @@ qqnorm(rstandard(fit), xlim = c(-3, 3), ylim = c(-3, 3))
 qqline(rstandard(fit), col = 2)
 summary(fit)
 ```
+
+Comments about actual results: As with the case of the MAR, the stochastic linear regression does a good job at imputing the values since the results are unbiased. However, we can observe from the diagram the fall in efficiency, since our standard deviation is skewed. 
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_4 = df_1
@@ -133,25 +166,26 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
        lty=c(1,1),
        bty="n")
 ```
+
 ## Exercise 4
 
-#-- 4.a
+# -- 4.a
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 load(file = "databp.RData")
 N = length(databp$recovtime)
-print("Complete Case")
 mean_fc = mean(databp$recovtime, na.rm=TRUE)
 se_fc = sd(databp$recovtime, na.rm=TRUE)/sqrt(N)
 corr_recovtime_logdose_fc = cor(databp$recovtime, databp$logdose, use = "complete")
 corr_recovtime_boodp_fc = cor(databp$recovtime, databp$bloodp, use = "complete")
 
+print("Complete Case")
 print(paste0("mean: ", mean_fc))
 print(paste0("standard error: " , se_fc))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_fc))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_fc))
 ```
-#-- 4.b
+# -- 4.b
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 recovtime_mi = ifelse(is.na(databp$recovtime), mean_fc, databp$recovtime)
@@ -161,6 +195,7 @@ se_mi = sd(recovtime_mi)/sqrt(N)
 corr_recovtime_logdose_mi = cor(recovtime_mi, databp$logdose)
 corr_recovtime_boodp_mi = cor(recovtime_mi, databp$bloodp)
 
+print("Mean imputation")
 print(paste0("mean: ", mean_mi))
 print(paste0("standard error: " , se_mi))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_mi))
@@ -187,6 +222,7 @@ se_ri = sd(recovtime_ri)/sqrt(N)
 corr_recovtime_logdose_ri = cor(recovtime_ri, databp$logdose)
 corr_recovtime_boodp_ri = cor(recovtime_ri, databp$bloodp)
 
+print("Regression Imputation")
 print(paste0("mean: ", mean_ri))
 print(paste0("standard error: " , se_ri))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_ri))
@@ -202,6 +238,7 @@ se_sri = sd(recovtime_sri)/sqrt(N)
 corr_recovtime_logdose_sri = cor(recovtime_sri, databp$logdose)
 corr_recovtime_boodp_sri = cor(recovtime_sri, databp$bloodp)
 
+print("Stochastic Regression Imputation")
 print(paste0("mean: ", mean_sri))
 print(paste0("standard error: " , se_sri))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_sri))
@@ -209,7 +246,10 @@ print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_sri))
 
 # very skewed results, need to investigate
 ```
-#--4.e
+# --4.e
+
+Comments: As we can see, the correlation between logdose, and bloodp is above 50%! 
+This means that on our regression model we have multicolinearity issues. This violates the assumptions of OLS 
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 predicted_hd = predict(fit, newdata=databp)
@@ -235,7 +275,10 @@ mean_hd = mean(recovtime_hd, na.rm=TRUE)
 se_hd = sd(recovtime_hd, na.rm=TRUE)/sqrt(N)
 corr_recovtime_logdose_hd = cor(recovtime_hd, databp$logdose)
 corr_recovtime_boodp_hd = cor(recovtime_hd, databp$bloodp)
+corr_logdose_boodp_hd = cor(databp$logdose, databp$bloodp)
 
+print("Predictive Mean Matching - Hot Deck Imputation")
+print(paste0("logdose $ bloodp correlation: ", corr_logdose_boodp_hd))
 print(paste0("mean: ", mean_hd))
 print(paste0("standard error: " , se_hd))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_hd))
