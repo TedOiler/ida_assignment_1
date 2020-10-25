@@ -195,7 +195,7 @@ print(paste0("standard error: " , se_mi))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_mi))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_mi))
 ```
-# -4.c
+## -4.c
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center', results="hold"}
 fit = lm(databp$recovtime ~ databp$logdose + databp$bloodp, data = databp)
