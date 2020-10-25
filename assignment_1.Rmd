@@ -286,8 +286,8 @@ print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_hd))
 
 ## -4.f
 
-Comments: Hot deck imputation has the advantage of using a simple linear regression model without the stochasticity and the drawing conclusions by imputing real (observed) values on the missing. Since we have seen on question 4.e that the normal qq plot suggests that our residuals are not iid, it would be wrong to use stochastic linear regression method of imputation. However one shortcoming that we see, is that the correlation of our dependent with our independent variables are 'overestimated' compared to the complete case analysis. 
-
+Comments: Hot deck imputation has the advantage of using a simple linear regression model without the stochasticity and the drawing conclusions by imputing real (observed) values on the missing. Since we have seen on question 4.e that the normal qq plot suggests that our residuals are not iid, it would be wrong to use stochastic linear regression method of imputation. 
+However one shortcoming that we see, is that the correlation of our dependent with our independent variables are 'overestimated' compared to the complete case analysis. Similarly we can detect a small bias on the mean values, when comparing with the mean of the complete case analysis.
 
 
 
