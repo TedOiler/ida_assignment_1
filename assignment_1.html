@@ -379,12 +379,7 @@ summary {
 </div>
 
 
-<div id="libraries" class="section level1">
-<h1>Libraries</h1>
-<pre class="r"><code>require(MASS)
-library(tinytex)</code></pre>
-<pre><code>## Warning: package &#39;tinytex&#39; was built under R version 4.0.3</code></pre>
-</div>
+<p>Github repo: <a href="https://github.com/TedOiler/ida_assignment_1" class="uri">https://github.com/TedOiler/ida_assignment_1</a></p>
 <div id="exercise-1" class="section level1">
 <h1>Exercise 1</h1>
 <p>-(a) –&gt; (ii) We are told that the missing mechanism is MCAR. That means that the missingness doesn’t depend on any other variable.</p>
@@ -586,9 +581,8 @@ print(paste0(&quot;recovtime &amp; bloodp: &quot;, corr_recovtime_boodp_mi))</co
 ## [1] &quot;recovtime &amp; dose: 0.215061174129736&quot;
 ## [1] &quot;recovtime &amp; bloodp: -0.0193412641944137&quot;</code></pre>
 </div>
-</div>
-<div id="c-1" class="section level1">
-<h1>-4.c</h1>
+<div id="c-1" class="section level2">
+<h2>-4.c</h2>
 <pre class="r"><code>fit = lm(databp$recovtime ~ databp$logdose + databp$bloodp, data = databp)
 
 # checking for correlation between Y2 and residuals
@@ -617,6 +611,9 @@ print(paste0(&quot;recovtime &amp; bloodp: &quot;, corr_recovtime_boodp_ri))</co
 ## [1] &quot;standard error: 2.31284487743953&quot;
 ## [1] &quot;recovtime &amp; dose: 0.280183502439952&quot;
 ## [1] &quot;recovtime &amp; bloodp: -0.0111364040939202&quot;</code></pre>
+</div>
+<div id="d-1" class="section level2">
+<h2>-4.d</h2>
 <pre class="r"><code>predicted_sri &lt;- predict(fit, newdata = databp) + rnorm(nrow(databp), 0, sigma(fit))
 recovtime_sri = ifelse(is.na(databp$recovtime), predicted_sri, databp$recovtime)
 
@@ -637,26 +634,25 @@ print(paste0(&quot;recovtime &amp; bloodp: &quot;, corr_recovtime_boodp_sri))
 ## [1] &quot;standard error: 2.45562932564445&quot;
 ## [1] &quot;recovtime &amp; dose: 0.302186205262322&quot;
 ## [1] &quot;recovtime &amp; bloodp: 0.0082648700658505&quot;</code></pre>
+</div>
 <div id="e" class="section level2">
 <h2>-4.e</h2>
-<p>Comments: As we can see, the correlation between logdose, and bloodp is above 50%! This means that on our regression model we have multicolinearity issues. This violates the assumptions of OLS. The OLS still produces some results since we do not have perfect colliniarity but the results are not that statistically significant as in for example Exercise 3. To overcome this problem we could try to do our regression with either of the variables, but this might oversimplify our model.</p>
+<p>Comments: As we can see, the correlation between logdose, and bloodp is above 50%! This means that on our regression model we have multicollinearity issues. This violates the assumptions of OLS. The OLS still produces some results since we do not have perfect collinearity but the results are not that statistically significant as in for example Exercise 3. To overcome this problem we could try to do our regression with either of the variables, but this might oversimplify our model. At this point something worth mentioning is the fact that the correlation between recovery time and bloop pressure changes sign, which is alarming. This is due to the above mentioned problems of the regression assumptions.</p>
 <pre class="r"><code>predicted_hd = predict(fit, newdata = databp)
 ind_hd = which(is.na(databp$recovtime) == FALSE)
 
 mean_sqr_diff = data.frame(data.frame(matrix(0, ncol = 3, nrow = 22)))
-sqr_diff = data.frame(data.frame(matrix(0, ncol = 3, nrow = 3)))
+sqr_diff = data.frame(data.frame(matrix(0, ncol = 1, nrow = 3)))
+recovtime_hd = c(databp$recovtime[is.na(databp$recovtime) == FALSE])
 
-# This could be better by making a loop.
-mean_sqr_diff[, 1] = (predicted_hd[ind_hd] - predicted_hd[-ind_hd][1])^2
-mean_sqr_diff[, 2] = (predicted_hd[ind_hd] - predicted_hd[-ind_hd][2])^2
-mean_sqr_diff[, 3] = (predicted_hd[ind_hd] - predicted_hd[-ind_hd][3])^2
+for (i in 1:length(predicted_hd[-ind_hd])) {
+    mean_sqr_diff[, i] = (predicted_hd[ind_hd] - predicted_hd[-ind_hd][i])^2
+    sqr_diff[i, ] = which.min(mean_sqr_diff[, i])
+}
 
-sqr_diff[, 1] &lt;- which.min(mean_sqr_diff[, 1])
-sqr_diff[, 2] &lt;- which.min(mean_sqr_diff[, 2])
-sqr_diff[, 3] &lt;- which.min(mean_sqr_diff[, 3])
-
-recovtime_hd = c(databp$recovtime[is.na(databp$recovtime) == FALSE], databp$recovtime[sqr_diff[1, 
-    1]], databp$recovtime[sqr_diff[1, 2]], databp$recovtime[sqr_diff[1, 3]])
+for (i in 1:length(predicted_hd[-ind_hd])) {
+    recovtime_hd = append(recovtime_hd, databp$recovtime[sqr_diff[i, ]])
+}
 
 mean_hd = mean(recovtime_hd, na.rm = TRUE)
 se_hd = sd(recovtime_hd, na.rm = TRUE)/sqrt(N)
@@ -665,13 +661,13 @@ corr_recovtime_boodp_hd = cor(recovtime_hd, databp$bloodp)
 corr_logdose_boodp_hd = cor(databp$logdose, databp$bloodp)
 
 print(&quot;Predictive Mean Matching - Hot Deck Imputation&quot;)
-print(paste0(&quot;logdose $ bloodp correlation: &quot;, corr_logdose_boodp_hd))
+print(paste0(&quot;logdose &amp; bloodp correlation: &quot;, corr_logdose_boodp_hd))
 print(paste0(&quot;mean: &quot;, mean_hd))
 print(paste0(&quot;standard error: &quot;, se_hd))
 print(paste0(&quot;recovtime &amp; dose: &quot;, corr_recovtime_logdose_hd))
 print(paste0(&quot;recovtime &amp; bloodp: &quot;, corr_recovtime_boodp_hd))</code></pre>
 <pre><code>## [1] &quot;Predictive Mean Matching - Hot Deck Imputation&quot;
-## [1] &quot;logdose $ bloodp correlation: 0.514315466074099&quot;
+## [1] &quot;logdose &amp; bloodp correlation: 0.514315466074099&quot;
 ## [1] &quot;mean: 18.28&quot;
 ## [1] &quot;standard error: 2.35125498404575&quot;
 ## [1] &quot;recovtime &amp; dose: -0.1652931751014&quot;
@@ -679,7 +675,7 @@ print(paste0(&quot;recovtime &amp; bloodp: &quot;, corr_recovtime_boodp_hd))</co
 </div>
 <div id="f" class="section level2">
 <h2>-4.f</h2>
-<p>Comments: Something that bothers</p>
+<p>Comments: Hot deck imputation has the advantage of using a simple linear regression model without the stochasticity and the drawing conclusions by imputing real (observed) values on the missing. Since we have seen on question 4.e that the normal qq plot suggests that our residuals are not iid, it would be wrong to use stochastic linear regression method of imputation. However one shortcoming that we see, is that the correlation of our dependent with our independent variables are ‘overestimated’ compared to the complete case analysis. Similarly we can detect a small bias on the mean values, when comparing with the mean of the complete case analysis.</p>
 </div>
 </div>
 
