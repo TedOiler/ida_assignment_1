@@ -254,20 +254,17 @@ predicted_hd = predict(fit, newdata=databp)
 ind_hd = which(is.na(databp$recovtime) == FALSE)
 
 mean_sqr_diff = data.frame(data.frame(matrix(0, ncol = 3, nrow = 22)))
-sqr_diff = data.frame(data.frame(matrix(0, ncol = 3, nrow = 3)))
+sqr_diff = data.frame(data.frame(matrix(0, ncol = 1, nrow = 3)))
+recovtime_hd = c(databp$recovtime[is.na(databp$recovtime) == FALSE])
 
-# This could be better by making a loop.
-mean_sqr_diff[,1] = (predicted_hd[ind_hd]-predicted_hd[-ind_hd][1])**2
-mean_sqr_diff[,2] = (predicted_hd[ind_hd]-predicted_hd[-ind_hd][2])**2
-mean_sqr_diff[,3] = (predicted_hd[ind_hd]-predicted_hd[-ind_hd][3])**2
+for (i in 1:length(predicted_hd[-ind_hd])){
+  mean_sqr_diff[,i] = (predicted_hd[ind_hd]-predicted_hd[-ind_hd][i])**2
+  sqr_diff[i,] = which.min(mean_sqr_diff[,i])
+}
 
-sqr_diff[,1] <- which.min(mean_sqr_diff[,1])
-sqr_diff[,2] <- which.min(mean_sqr_diff[,2])
-sqr_diff[,3] <- which.min(mean_sqr_diff[,3])
-
-recovtime_hd = c(databp$recovtime[is.na(databp$recovtime) == FALSE],
-                 databp$recovtime[sqr_diff[1,1]], databp$recovtime[sqr_diff[1,2]],
-                 databp$recovtime[sqr_diff[1,3]])
+for (i in 1:length(predicted_hd[-ind_hd])){
+  recovtime_hd = append(recovtime_hd, databp$recovtime[sqr_diff[i,]])
+}
 
 mean_hd = mean(recovtime_hd, na.rm=TRUE)
 se_hd = sd(recovtime_hd, na.rm=TRUE)/sqrt(N)
