@@ -69,7 +69,7 @@ for(i in 1:rows){
 plot(density(y2_obs), col="darkblue", xlab="Y2", main="MAR")
 lines(density(y2_miss), col = "red")
 lines(density(df$Y2), col = "darkgreen")
-legend(7.5,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"), 
+legend(7.1,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"), 
        col = c("darkblue", "red", "darkgreen"),
        lty=c(1,1,1),
        bty="n")
