@@ -3,8 +3,8 @@ title: "Assignment 1"
 author: "Ted Ladas -s2124289"
 date: "10/20/2020"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 # Libraries
@@ -14,6 +14,7 @@ require(MASS)
 ```
 
 ## Exercise 1
+
 
 ## Exercise 2
 
@@ -49,7 +50,7 @@ for(i in 1:rows){
   }
 }
 
-plot(density(y2_obs), col="darkblue", xlab="Y2", main="MNAR")
+plot(density(y2_obs), col="darkblue", xlab="Y2", main="MAR")
 lines(density(y2_miss), col = "red")
 lines(density(df$Y2), col = "darkgreen")
 legend(7.5,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"), 
@@ -137,16 +138,16 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
 #-- 4.a
 
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
-load(file = "data/databp.RData")
+load(file = "databp.RData")
+N = length(databp$recovtime)
 print("Complete Case")
-
 mean_fc = mean(databp$recovtime, na.rm=TRUE)
-sd_fc = sd(databp$recovtime, na.rm=TRUE)
+se_fc = sd(databp$recovtime, na.rm=TRUE)/sqrt(N)
 corr_recovtime_logdose_fc = cor(databp$recovtime, databp$logdose, use = "complete")
 corr_recovtime_boodp_fc = cor(databp$recovtime, databp$bloodp, use = "complete")
 
 print(paste0("mean: ", mean_fc))
-print(paste0("standard dev: " , sd_fc))
+print(paste0("standard error: " , se_fc))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_fc))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_fc))
 ```
@@ -155,13 +156,13 @@ print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_fc))
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 recovtime_mi = ifelse(is.na(databp$recovtime), mean_fc, databp$recovtime)
 
-mean_mi = mean(recovtime_mi, na.rm=TRUE)
-sd_mi = sd(recovtime_mi, na.rm=TRUE)
+mean_mi = mean(recovtime_mi)
+se_mi = sd(recovtime_mi)/sqrt(N)
 corr_recovtime_logdose_mi = cor(recovtime_mi, databp$logdose)
 corr_recovtime_boodp_mi = cor(recovtime_mi, databp$bloodp)
 
 print(paste0("mean: ", mean_mi))
-print(paste0("standard dev: " , sd_mi))
+print(paste0("standard error: " , se_mi))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_mi))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_mi))
 ```
@@ -181,13 +182,13 @@ qqline(rstandard(fit), col = 2)
 predicted_ri = predict(fit, newdata=databp)
 recovtime_ri = ifelse(is.na(databp$recovtime), predicted_ri, databp$recovtime)
 
-mean_ri = mean(recovtime_ri, na.rm=TRUE)
-sd_ri = sd(recovtime_ri, na.rm=TRUE)
+mean_ri = mean(recovtime_ri)
+se_ri = sd(recovtime_ri)/sqrt(N)
 corr_recovtime_logdose_ri = cor(recovtime_ri, databp$logdose)
 corr_recovtime_boodp_ri = cor(recovtime_ri, databp$bloodp)
 
 print(paste0("mean: ", mean_ri))
-print(paste0("standard dev: " , sd_ri))
+print(paste0("standard error: " , se_ri))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_ri))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_ri))
 ```
@@ -196,13 +197,13 @@ print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_ri))
 predicted_sri <- predict(fit, newdata = databp) + rnorm(nrow(databp), 0, sigma(fit))
 recovtime_sri = ifelse(is.na(databp$recovtime), predicted_sri, databp$recovtime)
 
-mean_sri = mean(recovtime_sri, na.rm=TRUE)
-sd_sri = sd(recovtime_sri, na.rm=TRUE)
+mean_sri = mean(recovtime_sri)
+se_sri = sd(recovtime_sri)/sqrt(N)
 corr_recovtime_logdose_sri = cor(recovtime_sri, databp$logdose)
 corr_recovtime_boodp_sri = cor(recovtime_sri, databp$bloodp)
 
 print(paste0("mean: ", mean_sri))
-print(paste0("standard dev: " , sd_sri))
+print(paste0("standard error: " , se_sri))
 print(paste0("recovtime & dose: " , corr_recovtime_logdose_sri))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_sri))
 
@@ -214,38 +215,33 @@ print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_sri))
 predicted_hd = predict(fit, newdata=databp)
 ind_hd = which(is.na(databp$recovtime) == FALSE)
 
+mean_sqr_diff = data.frame(data.frame(matrix(0, ncol = 3, nrow = 22)))
+sqr_diff = data.frame(data.frame(matrix(0, ncol = 3, nrow = 3)))
 
-# recovtime_hd = ifelse(is.na(databp$recovtime), donated_hd, databp$recovtime)
+# This could be better by making a loop.
+mean_sqr_diff[,1] = (predicted_hd[ind_hd]-predicted_hd[-ind_hd][1])**2
+mean_sqr_diff[,2] = (predicted_hd[ind_hd]-predicted_hd[-ind_hd][2])**2
+mean_sqr_diff[,3] = (predicted_hd[ind_hd]-predicted_hd[-ind_hd][3])**2
+
+sqr_diff[,1] <- which.min(mean_sqr_diff[,1])
+sqr_diff[,2] <- which.min(mean_sqr_diff[,2])
+sqr_diff[,3] <- which.min(mean_sqr_diff[,3])
+
+recovtime_hd = c(databp$recovtime[is.na(databp$recovtime) == FALSE],
+                 databp$recovtime[sqr_diff[1,1]], databp$recovtime[sqr_diff[1,2]],
+                 databp$recovtime[sqr_diff[1,3]])
+
+mean_hd = mean(recovtime_hd, na.rm=TRUE)
+se_hd = sd(recovtime_hd, na.rm=TRUE)/sqrt(N)
+corr_recovtime_logdose_hd = cor(recovtime_hd, databp$logdose)
+corr_recovtime_boodp_hd = cor(recovtime_hd, databp$bloodp)
+
+print(paste0("mean: ", mean_hd))
+print(paste0("standard error: " , se_hd))
+print(paste0("recovtime & dose: " , corr_recovtime_logdose_hd))
+print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_hd))
 ```
 
-
-```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
-# predihdi <- predict(fitri, newdata = databp)
-# 
-# indhdi <- which(is.na(databp$recovtime) == FALSE)
-# # MSD <- matrix(, ncol = 3)
-# # for (i in length(predihdi[-indhdi])) {
-#   df_MSD[,1] <- as.data.frame((predihdi[indhdi]-predihdi[-indhdi][1])**2)
-#   df_MSD[,2] <- as.data.frame((predihdi[indhdi]-predihdi[-indhdi][2])**2)
-#   df_MSD[,3] <- as.data.frame((predihdi[indhdi]-predihdi[-indhdi][3])**2)
-#   MSD[,1] <- which.min(df_MSD[,1])
-#   MSD[,2] <- which.min(df_MSD[,2])
-#   MSD[,3] <- which.min(df_MSD[,3])
-# # }
-# 
-# donor1 <- sample(MSD[1], 1, replace = TRUE) #WRONG
-# donor2 <- sample(MSD[2], 1, replace = TRUE) #WRONG
-# donor3 <- sample(MSD[3], 1, replace = TRUE) #WRONG
-# 
-# rthd <- c(databp$recovtime[is.na(databp$recovtime) == FALSE],
-#         databp$recovtime[MSD[1]], databp$recovtime[MSD[2]],
-#         databp$recovtime[MSD[3]])
-# 
-# mhd <- mean(rthd)
-# sehd <- sd(rthd)/sqrt(N)
-# 
-# mhd; sehd
-```
 
 
 
