@@ -2,7 +2,9 @@
 title: "Assignment 1"
 author: "Ted Ladas -s2124289"
 date: "10/20/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 # Libraries
@@ -18,6 +20,7 @@ require(MASS)
 ## Exercise 3
 
 # Setup of full dataframe
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 set.seed(1903)
 rows = 500
@@ -31,6 +34,7 @@ df = data.frame("Y1"=y1, "Y2"=y2)
 ```
 
 # -- 3.a
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_1 = df
 a=2;b=0
@@ -55,6 +59,7 @@ legend(7.5,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
 ```
 
 # -- 3.b
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 fit = lm(df_1$Y2 ~ Y1, data = df_1)
 # checking for correlation between Y2 and residuals
@@ -79,6 +84,7 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
 ```
 
 #-- 3.c
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_3 = df
 a=0;b=2
@@ -103,6 +109,7 @@ legend(9,0.25,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
 ```
 
 #-- 3.d
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 fit = lm(df_1$Y2 ~ df_3$Y1, data = df_1)
 # checking for correlation between Y2 and residuals
@@ -128,6 +135,7 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
 ## Exercise 4
 
 #-- 4.a
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 load(file = "data/databp.RData")
 print("Complete Case")
@@ -143,6 +151,7 @@ print(paste0("recovtime & dose: " , corr_recovtime_logdose_fc))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_fc))
 ```
 #-- 4.b
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 recovtime_mi = ifelse(is.na(databp$recovtime), mean_fc, databp$recovtime)
 
@@ -157,8 +166,16 @@ print(paste0("recovtime & dose: " , corr_recovtime_logdose_mi))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_mi))
 ```
 #-- 4.c
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 fit = lm(databp$recovtime ~ databp$logdose + databp$bloodp, data = databp)
+
+# checking for correlation between Y2 and residuals
+plot(fit$fitted.values, residuals(fit), xlab = "Fitted values", ylab = "Residuals")
+# checking for irregularities in the distribution of residuals
+qqnorm(rstandard(fit), xlim = c(-3, 3), ylim = c(-3, 3))
+qqline(rstandard(fit), col = 2)
+
 # summary(fit)
 # Rsqr seems very bad, need to explore more
 predicted_ri = predict(fit, newdata=databp)
@@ -190,6 +207,44 @@ print(paste0("recovtime & dose: " , corr_recovtime_logdose_sri))
 print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_sri))
 
 # very skewed results, need to investigate
+```
+#--4.e
+
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+predicted_hd = predict(fit, newdata=databp)
+ind_hd = which(is.na(databp$recovtime) == FALSE)
+
+
+# recovtime_hd = ifelse(is.na(databp$recovtime), donated_hd, databp$recovtime)
+```
+
+
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+# predihdi <- predict(fitri, newdata = databp)
+# 
+# indhdi <- which(is.na(databp$recovtime) == FALSE)
+# # MSD <- matrix(, ncol = 3)
+# # for (i in length(predihdi[-indhdi])) {
+#   df_MSD[,1] <- as.data.frame((predihdi[indhdi]-predihdi[-indhdi][1])**2)
+#   df_MSD[,2] <- as.data.frame((predihdi[indhdi]-predihdi[-indhdi][2])**2)
+#   df_MSD[,3] <- as.data.frame((predihdi[indhdi]-predihdi[-indhdi][3])**2)
+#   MSD[,1] <- which.min(df_MSD[,1])
+#   MSD[,2] <- which.min(df_MSD[,2])
+#   MSD[,3] <- which.min(df_MSD[,3])
+# # }
+# 
+# donor1 <- sample(MSD[1], 1, replace = TRUE) #WRONG
+# donor2 <- sample(MSD[2], 1, replace = TRUE) #WRONG
+# donor3 <- sample(MSD[3], 1, replace = TRUE) #WRONG
+# 
+# rthd <- c(databp$recovtime[is.na(databp$recovtime) == FALSE],
+#         databp$recovtime[MSD[1]], databp$recovtime[MSD[2]],
+#         databp$recovtime[MSD[3]])
+# 
+# mhd <- mean(rthd)
+# sehd <- sd(rthd)/sqrt(N)
+# 
+# mhd; sehd
 ```
 
 
