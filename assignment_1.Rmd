@@ -5,11 +5,19 @@ date: "10/20/2020"
 output: html_document
 ---
 
+# Libraries
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 require(MASS)
 ```
 
-## Exercise 2a
+## Exercise 1
+
+## Exercise 2
+
+## Exercise 3
+
+# Setup of full dataframe
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 set.seed(1903)
 rows = 500
@@ -20,7 +28,10 @@ z3 = rnorm(rows)
 y1 = 1 + z1
 y2 = 5 + 2*z1 + z2
 df = data.frame("Y1"=y1, "Y2"=y2)
+```
 
+# -- 3.a
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_1 = df
 a=2;b=0
 y2_rule = a*(y1-1) + b*(y2-5) + z3 < 0
@@ -43,7 +54,7 @@ legend(7.5,0.22,legend = c("Y2 observed", "Y2 missing", "Y2 full"),
        bty="n")
 ```
 
-## Exercise 2b
+# -- 3.b
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 fit = lm(df_1$Y2 ~ Y1, data = df_1)
 # checking for correlation between Y2 and residuals
@@ -53,6 +64,7 @@ qqnorm(rstandard(fit), xlim = c(-3, 3), ylim = c(-3, 3))
 qqline(rstandard(fit), col = 2)
 summary(fit)
 ```
+
 ```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
 df_2 = df_1
 predicted_slm = predict(fit, newdata = df_1) + rnorm(nrow(df_1), 0, sigma(fit))
@@ -65,6 +77,91 @@ legend(8,0.15,legend = c("slm Y2", "full Y2"),
        lty=c(1,1),
        bty="n")
 ```
+
+#-- 3.c
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+df_3 = df
+a=0;b=2
+y2_rule = a*(y1-1) + b*(y2-5) + z3 < 0
+
+y2_obs = y2[y2_rule]
+y2_miss = y2[!y2_rule]
+
+for(i in 1:rows){
+  if(y2_rule[i]){
+    df_1$Y2[i] = NA
+  }
+}
+
+plot(density(y2_obs), col="darkblue", xlab="Y2", main="MNAR", xlim=c(-5,15))
+lines(density(y2_miss), col = "red")
+lines(density(df$Y2), col = "darkgreen")
+legend(9,0.25,legend = c("Y2 observed", "Y2 missing", "Y2 full"), 
+       col = c("darkblue", "red", "darkgreen"),
+       lty=c(1,1,1),
+       bty="n")
+```
+
+#-- 3.d
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+fit = lm(df_1$Y2 ~ df_3$Y1, data = df_1)
+# checking for correlation between Y2 and residuals
+plot(fit$fitted.values, residuals(fit), xlab = "Fitted values", ylab = "Residuals")
+# checking for irregularities in the distribution of residuals
+qqnorm(rstandard(fit), xlim = c(-3, 3), ylim = c(-3, 3))
+qqline(rstandard(fit), col = 2)
+summary(fit)
+```
+
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+df_4 = df_1
+predicted_slm = predict(fit, newdata = df_1) + rnorm(nrow(df_1), 0, sigma(fit))
+df_4$Y2 = ifelse(is.na(df_4$Y2), predicted_slm, df_4$Y2)
+
+plot(density(df_4$Y2), col="darkblue", xlab="Y2", main="Stochastic Linear Regression")
+lines(density(df$Y2), col = "red")
+legend(8,0.15,legend = c("slm Y2", "full Y2"), 
+       col = c("darkblue", "red"),
+       lty=c(1,1),
+       bty="n")
+```
+## Exercise 4
+
+#-- 4.a
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+load(file = "data/databp.RData")
+print("Complete Case")
+
+mean_fc = mean(databp$recovtime, na.rm=TRUE)
+sd_fc = sd(databp$recovtime, na.rm=TRUE)
+corr_recovtime_logdose_fc = cor(databp$recovtime, databp$logdose, use = "complete")
+corr_recovtime_boodp_fc = cor(databp$recovtime, databp$bloodp, use = "complete")
+
+print(paste0("mean: ", mean_fc))
+print(paste0("standard dev: " , sd_fc))
+print(paste0("recovtime & dose: " , corr_recovtime_logdose_fc))
+print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_fc))
+```
+#-- 4.b
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+recovtime_mi = ifelse(is.na(databp$recovtime), mean_fc, databp$recovtime)
+
+mean_mi = mean(recovtime_mi, na.rm=TRUE)
+sd_mi = sd(recovtime_mi, na.rm=TRUE)
+corr_recovtime_logdose_mi = cor(recovtime_mi, databp$logdose)
+corr_recovtime_boodp_mi = cor(recovtime_mi, databp$bloodp)
+
+print(paste0("mean: ", mean_mi))
+print(paste0("standard dev: " , sd_mi))
+print(paste0("recovtime & dose: " , corr_recovtime_logdose_mi))
+print(paste0("recovtime & bloodp: " , corr_recovtime_boodp_mi))
+```
+#-- 4.c
+```{r, include=TRUE, message=FALSE, tidy=TRUE, fig.align='center'}
+
+```
+
+
 
 
 
